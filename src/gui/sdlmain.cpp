@@ -68,7 +68,7 @@
 //Define to disable the usage of the pixel buffer object
 //#define DB_DISABLE_DBO
 //Define to report opengl errors
-//#define DB_OPENGL_ERROR
+#define DB_OPENGL_ERROR
 
 #ifndef APIENTRY
 #define APIENTRY
@@ -1152,16 +1152,31 @@ dosurface:
 			glGetError();
 			glGetIntegerv(GL_CURRENT_PROGRAM, (GLint*)&prog);
 			// if there was an error this context doesn't support shaders
-			if (glGetError()==GL_NO_ERROR && (sdl.opengl.program_object==0 || prog!=sdl.opengl.program_object)) {
+			//
+			int err = glGetError();
+			DEBUG_LOG_MSG(":: GFX_SetSize state: err: %d ; prev program: %d; new program: %d",
+			              err, sdl.opengl.program_object, prog);
+
+			if (err ==GL_NO_ERROR && (sdl.opengl.program_object==0 || prog!=sdl.opengl.program_object)) {
 				// check if existing program is valid
 				if (sdl.opengl.program_object) {
 					glUseProgram(sdl.opengl.program_object);
-					if (glGetError() != GL_NO_ERROR) {
+					err = glGetError();
+					if (err != GL_NO_ERROR) {
+						switch (err) {
+						case GL_INVALID_VALUE:     DEBUG_LOG_MSG(":: GFX_SetSize glUseProgram(%d) -> GL_INVALID_VALUE (%d)", sdl.opengl.program_object, err); break;
+						case GL_INVALID_OPERATION: DEBUG_LOG_MSG(":: GFX_SetSize glUseProgram(%d) -> GL_INVALID_OPERATION (%d)", sdl.opengl.program_object, err); break;
+						default:                   DEBUG_LOG_MSG(":: GFX_SetSize glUseProgram(%d) -> UNKNOWN_ERROR (%d)", sdl.opengl.program_object, err); break;
+						}
+
 						// program is not usable (probably new context), purge it
 						glDeleteProgram(sdl.opengl.program_object);
 						sdl.opengl.program_object = 0;
 					}
 				}
+
+				DEBUG_LOG_MSG(":: GFX_SetSize program_object: %d",
+				              sdl.opengl.program_object);
 
 				// does program need to be rebuilt?
 				if (sdl.opengl.program_object == 0) {
@@ -1177,6 +1192,7 @@ dosurface:
 					}
 
 					sdl.opengl.program_object = glCreateProgram();
+					DEBUG_LOG_MSG(":: GFX_SetSize glCreateProgram() -> %d", sdl.opengl.program_object);
 					if (!sdl.opengl.program_object) {
 						glDeleteShader(vertexShader);
 						glDeleteShader(fragmentShader);
@@ -1209,6 +1225,8 @@ dosurface:
 					}
 
 					glUseProgram(sdl.opengl.program_object);
+					err = glGetError();
+					DEBUG_LOG_MSG(":: GFX_SetSize other glUseProgram(%d) -> %d", sdl.opengl.program_object, err);
 
 					GLint u = glGetAttribLocation(sdl.opengl.program_object, "a_position");
 					// upper left
@@ -1519,9 +1537,13 @@ bool GFX_StartUpdate(uint8_t * &pixels, int &pitch)
 		return true;
 #if C_OPENGL
 	case SCREEN_OPENGL:
+		DEBUG_LOG_MSG(":: GFX_StartUpdate start state: pbo: %d", sdl.opengl.pixel_buffer_object);
 		if (sdl.opengl.pixel_buffer_object) {
 			glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_EXT, sdl.opengl.buffer);
+			DEBUG_LOG_MSG(":: GFX_StartUpdate glBindBuffer err: %d", glGetError());
+
 			pixels = static_cast<uint8_t *>(glMapBufferARB(GL_PIXEL_UNPACK_BUFFER_EXT, GL_WRITE_ONLY));
+			DEBUG_LOG_MSG(":: GFX_StartUpdate glMapBuffer err: %d", glGetError());
 		} else {
 			pixels = static_cast<uint8_t *>(sdl.opengl.framebuf);
 		}
