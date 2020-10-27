@@ -1,7 +1,7 @@
 #!/bin/env bash
 
 export SDL_VIDEODRIVER=dummy
-readonly DOSBOX="$(git rev-parse --show-toplevel)/src/dosbox"
+readonly DOSBOX=${DOSBOX:-"$(git rev-parse --show-toplevel)/src/dosbox"}
 
 expecting_output () {
 	echo "$1" > t000-dirb-out.txt
