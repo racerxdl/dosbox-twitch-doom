@@ -1,4 +1,4 @@
-#!/bin/env bash
+#!/bin/bash
 
 export SDL_VIDEODRIVER=dummy
 readonly DOSBOX=${DOSBOX:-"$(git rev-parse --show-toplevel)/src/dosbox"}
