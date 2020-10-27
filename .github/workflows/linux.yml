@@ -38,7 +38,7 @@ jobs:
           - name: GCC, +tests
             os: ubuntu-20.04
             config_flags: --enable-tests
-            add_packages: libgtest-dev
+            add_packages: libgtest-dev dos2unix
             flags: -c gcc
             run_tests: true
             max_warnings: -1
