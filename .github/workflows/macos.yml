@@ -16,10 +16,11 @@ jobs:
     strategy:
       matrix:
         conf:
-          - name: Clang
+          - name: Clang, +tests
             flags: -c clang
+            run_tests: true
             max_warnings: 0
-          - name: GCC-9
+          - name: GCC
             flags: -c gcc -v 9
             max_warnings: 2
     steps:
@@ -45,6 +46,11 @@ jobs:
         run:  ./scripts/log-env.sh
       - name: Build
         run:  ./scripts/build.sh --build-type Debug ${{ matrix.conf.flags }}
+      - name: Run autoexec tests
+        if:   matrix.conf.run_tests
+        run: |
+          cd tests/autoexec
+          ./t000-dirb.sh
       - name: Summarize warnings
         env:
           MAX_WARNINGS: ${{ matrix.conf.max_warnings }}

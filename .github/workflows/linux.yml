@@ -87,9 +87,14 @@ jobs:
         run:  ./scripts/log-env.sh
       - name: Build
         run:  ./scripts/build.sh -t Debug ${{ matrix.conf.flags }} ${{ matrix.conf.config_flags }}
-      - name: Run tests
+      - name: Run unit tests
         if:   matrix.conf.run_tests
         run:  ./tests/tests
+      - name: Run autoexec tests
+        if:   matrix.conf.run_tests
+        run: |
+          cd tests/autoexec
+          ./t000-dirb.sh
       - name: Summarize warnings
         if:   matrix.conf.run_tests != true
         env:
