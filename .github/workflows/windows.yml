@@ -69,9 +69,9 @@ jobs:
         if:    matrix.conf.run_tests
         shell: bash
         env:
-          DOSBOX: 'vs/${{ matrix.conf.arch }}/Debug/dosbox.exe'
+          DOSBOX: '../../vs/${{ matrix.conf.arch }}/Debug/dosbox.exe'
         run: |
-          cd tests/autoexec
+          cd ../tests/autoexec
           ./t000-dirb.sh
 
       - name:  Summarize warnings
