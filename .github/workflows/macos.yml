@@ -18,6 +18,7 @@ jobs:
         conf:
           - name: Clang, +tests
             flags: -c clang
+            add_packages: dos2unix
             run_tests: true
             max_warnings: 0
           - name: GCC
@@ -26,7 +27,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Install C++ compiler and libraries
-        run:  brew install $(./scripts/list-build-dependencies.sh -m brew ${{ matrix.conf.flags}})
+        run:  brew install $(./scripts/list-build-dependencies.sh -m brew ${{ matrix.conf.flags}}) ${{ matrix.conf.add_packages }}
 
       - name:  Prepare compiler cache
         id:    prep-ccache
@@ -47,11 +48,13 @@ jobs:
         run:  ./scripts/log-env.sh
       - name: Build
         run:  ./scripts/build.sh --build-type Debug ${{ matrix.conf.flags }}
+
       - name: Run autoexec tests
         if:   matrix.conf.run_tests
         run: |
           cd tests/autoexec
           ./t000-dirb.sh
+
       - name: Summarize warnings
         env:
           MAX_WARNINGS: ${{ matrix.conf.max_warnings }}

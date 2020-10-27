@@ -37,9 +37,9 @@ jobs:
             max_warnings: 0
           - name: GCC, +tests
             os: ubuntu-20.04
+            flags: -c gcc
             config_flags: --enable-tests
             add_packages: libgtest-dev dos2unix
-            flags: -c gcc
             run_tests: true
             max_warnings: -1
           - name: GCC, +debug
@@ -87,14 +87,17 @@ jobs:
         run:  ./scripts/log-env.sh
       - name: Build
         run:  ./scripts/build.sh -t Debug ${{ matrix.conf.flags }} ${{ matrix.conf.config_flags }}
+
       - name: Run unit tests
         if:   matrix.conf.run_tests
         run:  ./tests/tests
+
       - name: Run autoexec tests
         if:   matrix.conf.run_tests
         run: |
           cd tests/autoexec
           ./t000-dirb.sh
+
       - name: Summarize warnings
         if:   matrix.conf.run_tests != true
         env:
