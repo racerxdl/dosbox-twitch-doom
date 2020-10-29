@@ -6,8 +6,8 @@ License: GPLv2+
 URL:     https://dosbox-staging.github.io/
 Source:  https://github.com/dosbox-staging/dosbox-staging/archive/v%{version}/%{name}-%{version}.tar.gz
 
-# This package is a drop-in replacement for dosbox
-Provides: dosbox
+# This package is a drop-in replacement for vanilla DOSBox
+Conflicts: dosbox
 
 BuildRequires: gcc-c++
 BuildRequires: gcc
