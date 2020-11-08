@@ -221,7 +221,7 @@ uniform COMPAT_PRECISION float TRINITRON_CURVE;
 #define SCAN_BLUR 2.5
 #define MASK_INTENSITY 0.54
 #define CURVATURE 0.02
-#define CORNER 3.0
+#define CORNER 2.0
 #define MASK 1.0
 #define TRINITRON_CURVE 0.0
 #endif
