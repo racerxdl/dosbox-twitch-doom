@@ -1,12 +1,12 @@
 Name:    dosbox-staging
 Version: 0.75.2
-Release: 1%{?dist}
+Release: 2%{?dist}
 Summary: DOS/x86 emulator focusing on ease of use
 License: GPLv2+
 URL:     https://dosbox-staging.github.io/
 Source:  https://github.com/dosbox-staging/dosbox-staging/archive/v%{version}/%{name}-%{version}.tar.gz
 
-# This package is a drop-in replacement for vanilla DOSBox
+# This package is a drop-in replacement for vanilla DOSBox.
 Conflicts: dosbox
 
 BuildRequires: gcc-c++
@@ -14,7 +14,7 @@ BuildRequires: gcc
 BuildRequires: automake
 BuildRequires: alsa-lib-devel
 BuildRequires: libpng-devel
-BuildRequires: SDL2-devel
+BuildRequires: SDL2-devel >= 2.0.2
 BuildRequires: SDL2_net-devel
 BuildRequires: opusfile-devel
 BuildRequires: librsvg2-tools
@@ -46,13 +46,16 @@ any old DOS game using modern hardware.
 
 %build
 ./autogen.sh
+# Use -O3 over -O2, as implementation relies on compiler optimizations.
+# This makes the performance slightly better and average FPS timings much more
+# predictable.
 %configure \
         CPPFLAGS="-DNDEBUG" \
         CFLAGS="${CFLAGS/-O2/-O3}" \
         CXXFLAGS="${CXXFLAGS/-O2/-O3}"
-# binary
+# Build binary.
 %{__make} %{_smp_mflags}
-# icons
+# Render icons.
 %{__make} -C contrib/icons hicolor
 
 
@@ -88,10 +91,12 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/*.xml
 
 
 %changelog
-* Tue Oct 27 2020 Patryk Obara (pbo) <dreamer.tan@gmail.com>
-- 0.75.2-1
+* Thu Nov 12 2020 Patryk Obara (pbo) <dreamer.tan@gmail.com> - 0.75.2-2
+- Explicitly conflict with dosbox package
+- Indicate minimum SDL version requirement
+
+* Tue Oct 27 2020 Patryk Obara (pbo) <dreamer.tan@gmail.com> - 0.75.2-1
 - Update to 0.75.2
 
-* Thu Oct 01 2020 Patryk Obara (pbo) <dreamer.tan@gmail.com>
-- 0.75.1-1
+* Thu Oct 01 2020 Patryk Obara (pbo) <dreamer.tan@gmail.com> - 0.75.1-1
 - Initial release.
