@@ -23,104 +23,14 @@
 
 #if C_OPENGL
 
+// CRT-styled scalar by Timothy Lottes
+// based on version: 20180120b
+//
+// See contrib/glshaders/crt-lottes-fast.glsl for full file version with
+// additional comments.
+//
 static const char crt_lottes_fast_glsl[] = R"GLSL(
 #version 120
-
-//_____________________________/\_______________________________
-//==============================================================
-//
-//
-//      [CRTS] PUBLIC DOMAIN CRT-STYLED SCALAR - 20180120b
-//
-//                      by Timothy Lottes
-//             https://www.shadertoy.com/view/MtSfRK
-//               adapted for RetroArch by hunterk
-//
-//
-//==============================================================
-////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////
-//_____________________________/\_______________________________
-//==============================================================
-//
-//                         WHAT'S NEW
-//
-//--------------------------------------------------------------
-// Evolution of prior shadertoy example
-//--------------------------------------------------------------
-// This one is semi-optimized
-//  - Less texture fetches
-//  - Didn't get to instruction level optimization
-//  - Could likely use texture fetch to generate phosphor mask
-//--------------------------------------------------------------
-// Added options to disable unused features
-//--------------------------------------------------------------
-// Added in exposure matching
-//  - Given scan-line effect and mask always darkens image
-//  - Uses generalized tonemapper to boost mid-level
-//  - Note this can compress highlights
-//  - And won't get back peak brightness
-//  - But best option if one doesn't want as much darkening
-//--------------------------------------------------------------
-// Includes option saturation and contrast controls
-//--------------------------------------------------------------
-// Added in subtractive aperture grille
-//  - This is a bit brighter than prior
-//--------------------------------------------------------------
-// Make sure input to this filter is already low-resolution
-//  - This is not designed to work on titles doing the following
-//     - Rendering to hi-res with nearest sampling
-//--------------------------------------------------------------
-// Added a fast and more pixely option for 2 tap/pixel
-//--------------------------------------------------------------
-// Improved the vignette when WARP is enabled
-//--------------------------------------------------------------
-// Didn't test HLSL or CPU options
-//  - Will incorportate patches if they are broken
-//  - But out of time to try them myself
-//==============================================================
-////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////
-//_____________________________/\_______________________________
-//==============================================================
-//
-//          LICENSE = UNLICENSE (aka PUBLIC DOMAIN)
-//
-//--------------------------------------------------------------
-// This is free and unencumbered software released into the
-// public domain.
-//--------------------------------------------------------------
-// Anyone is free to copy, modify, publish, use, compile, sell,
-// or distribute this software, either in source code form or as
-// a compiled binary, for any purpose, commercial or
-// non-commercial, and by any means.
-//--------------------------------------------------------------
-// In jurisdictions that recognize copyright laws, the author or
-// authors of this software dedicate any and all copyright
-// interest in the software to the public domain. We make this
-// dedication for the benefit of the public at large and to the
-// detriment of our heirs and successors. We intend this
-// dedication to be an overt act of relinquishment in perpetuity
-// of all present and future rights to this software under
-// copyright law.
-//--------------------------------------------------------------
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
-// KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-// WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
-// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS BE
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
-// AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT
-// OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-// DEALINGS IN THE SOFTWARE.
-//--------------------------------------------------------------
-// For more information, please refer to
-// <http://unlicense.org/>
-//==============================================================
-////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////
 
 #pragma parameter MASK "Mask Type" 1.0 0.0 3.0 1.0
 #pragma parameter MASK_INTENSITY "Mask Intensity" 0.5 0.0 1.0 0.05
@@ -408,7 +318,10 @@ vec3 CrtsFetch(vec2 uv){
 	ret.y=((-pMidIn)+midOut)/((1.0-pMidIn)*midOut);
 	ret.z=((-pMidIn)*midOut+pMidIn)/(midOut*(-pMidIn)+midOut);
 	ret.w=contrast+saturation;
-	return ret;}
+	return ret;
+}
+)GLSL"
+
 //_____________________________/\_______________________________
 //==============================================================
 //                            MASK
@@ -438,6 +351,8 @@ vec3 CrtsFetch(vec2 uv){
 // 'dark' - Exposure of of masked channel
 //          0.0=fully off, 1.0=no effect
 //==============================================================
+
+R"GLSL(
  CrtsF3 CrtsMask(CrtsF2 pos,CrtsF1 dark){
 	if(MASK == 2.0){
 		CrtsF3 m=CrtsF3(dark,dark,dark);
@@ -470,7 +385,9 @@ vec3 CrtsFetch(vec2 uv){
 		else m.b=1.0;
 		return m;
 	}
- }
+}
+)GLSL"
+
 //_____________________________/\_______________________________
 //==============================================================
 //                        FILTER ENTRY
@@ -505,7 +422,9 @@ vec3 CrtsFetch(vec2 uv){
 // Reciprocal of combined effect is used for auto-exposure
 //  to scale up the mid-level in the tonemapper
 //==============================================================
- CrtsF3 CrtsFilter(
+
+R"GLSL(
+CrtsF3 CrtsFilter(
 //--------------------------------------------------------------
 	// SV_POSITION, fragCoord.xy
 	CrtsF2 ipos,
@@ -696,7 +615,6 @@ vec3 CrtsFetch(vec2 uv){
  #endif
 //--------------------------------------------------------------
  }
-
 
 void main()
 {
