@@ -120,12 +120,6 @@ jobs:
       - name: Install C++ compiler and libraries
         run:  sudo apt-get install -y tree libpng-dev librsvg2-bin $(./scripts/list-build-dependencies.sh -m apt -c gcc)
 
-      - name: Install appimage-builder
-        if:   matrix.conf.create_appimage
-        run: |
-          sudo apt-get install -y python3-setuptools
-          sudo pip3 install appimage-builder
-
       - name:  Prepare compiler cache
         id:    prep-ccache
         shell: bash
@@ -206,13 +200,31 @@ jobs:
           # Create tarball
           tar -cJf "dosbox-staging-linux-$VERSION.tar.xz" "dosbox-staging-linux-$VERSION"
 
-      - name: Package appimage 
+      - name: Prepare AppDir 
         if:   matrix.conf.create_appimage
         run: |
           set -x
           make -C contrib/icons/ hicolor
           make install DESTDIR="$(pwd)/AppDir"
+
+          install -DT -m 644 COPYING                              $dest/usr/share/doc/COPYING
+          install -DT -m 644 README                               $dest/usr/share/doc/README
+          install -DT -m 644 contrib/linux/dosbox-staging.desktop $dest/usr/share/applications/dosbox-staging.desktop
+
           tree AppDir
+
+      - name: Build AppImage
+        if:   matrix.conf.create_appimage
+        uses: AppImageCrafters/build-appimage-action@master
+        env:
+          UPDATE_INFO: gh-releases-zsync|dosbox-staging|dosbox-staging|latest|*x86_64.AppImage.zsync
+        with:
+          recipe: AppImageBuilder.yml
+
+      - uses: actions/upload-artifact@v2
+        if:   matrix.conf.create_appimage
+        with:
+          name: AppImage
 
       - name:  Prepare Clam AV DB cache
         if:    matrix.conf.create_tarball
