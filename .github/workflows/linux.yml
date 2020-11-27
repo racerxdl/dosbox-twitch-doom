@@ -97,9 +97,16 @@ jobs:
         run:  ./scripts/count-warnings.py -lf build.log
 
   build_linux_release_dynamic:
-    name: Release build
-    runs-on: ubuntu-18.04
+    name: ${{ matrix.conf.name }}
+    runs-on: ${{ matrix.conf.os }}
     if: github.event_name != 'pull_request' || contains('dreamer,kcgen,ant-222,Wengier', github.actor) == false
+    strategy:
+      matrix:
+        conf:
+          - name: Release build (tar.xz)
+            os: ubuntu-18.04
+          - name: Release build (AppImg)
+            os: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
       - run:  sudo apt-get update
