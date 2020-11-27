@@ -204,7 +204,8 @@ jobs:
         if:   matrix.conf.create_appimage
         run: |
           set -x
-          make install DESTDIR=AppDir
+          make -C contrib/icons/ hicolor
+          make install DESTDIR="$(pwd)/AppDir"
           tree AppDir
 
       - name:  Prepare Clam AV DB cache
