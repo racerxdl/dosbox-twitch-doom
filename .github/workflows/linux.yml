@@ -120,6 +120,12 @@ jobs:
       - name: Install C++ compiler and libraries
         run:  sudo apt-get install -y tree libpng-dev librsvg2-bin $(./scripts/list-build-dependencies.sh -m apt -c gcc)
 
+      - name: Install appimage-builder
+        if:   matrix.conf.create_appimage
+        run: |
+          sudo apt-get install -y python3-setuptools
+          sudo pip3 install appimage-builder
+
       - name:  Prepare compiler cache
         id:    prep-ccache
         shell: bash
