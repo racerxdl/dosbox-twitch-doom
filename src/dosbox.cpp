@@ -44,6 +44,8 @@
 #include "pci_bus.h"
 #include "midi.h"
 #include "hardware.h"
+#include "keyboard.h"
+#include "extcmd.h"
 
 Config * control;
 MachineType machine;
@@ -152,6 +154,7 @@ static Bitu Normal_Loop(void) {
 				TIMER_AddTick();
 				ticksRemain--;
 			} else {increaseticks();return 0;}
+			ProcessExtCMD();
 		}
 	}
 }
@@ -388,6 +391,7 @@ static void DOSBOX_RealInit(Section * sec) {
 
 
 void DOSBOX_Init(void) {
+	InitExtCMD();
 	Section_prop * secprop;
 	Prop_int* Pint;
 	Prop_int *pint = nullptr;

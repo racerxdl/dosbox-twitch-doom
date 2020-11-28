@@ -32,6 +32,7 @@ noinst_HEADERS = \
 	mouse.h \
 	paging.h \
 	pci_bus.h \
+	extcmd.h \
 	pic.h \
 	programs.h \
 	regs.h \
